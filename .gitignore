@@ -1,0 +1,69 @@
+
+# ==========================================
+# BookingRules - Delphi / RAD Studio / DUnitX
+# ==========================================
+
+# Arquivos locais da IDE
+*.local
+*.dsk
+*.identcache
+*.stat
+*.tvsconfig
+*.skincfg
+
+# Arquivos de compilacao
+*.dcu
+*.obj
+*.o
+*.hpp
+*.lib
+*.bpl
+*.dcp
+*.map
+*.tds
+*.rsm
+*.drc
+*.ilc
+*.ild
+*.ilf
+*.ils
+
+# Executaveis e bibliotecas gerados
+*.exe
+*.dll
+
+# Diretorios de build
+Win32/
+Win64/
+Debug/
+Release/
+__history/
+__recovery/
+
+# Backups do Delphi
+*.~*
+*.bak
+
+# Relatorios gerados pelos testes
+TestResults/
+TestResults.xml
+TestResults*.xml
+
+# Arquivos temporarios
+*.tmp
+*.log
+
+# Arquivos do Windows
+Thumbs.db
+Desktop.ini
+
+# Configuracoes locais do VS Code
+.vscode/
+
+# Manter arquivos-fonte e projetos
+!*.pas
+!*.dpr
+!*.dproj
+!*.groupproj
+!*.res
+!*.md

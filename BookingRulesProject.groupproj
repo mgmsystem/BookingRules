@@ -1,0 +1,48 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{ADDEAA5B-EE24-4EF4-AC15-F23C74AE085A}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="BookingRules.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="BookingRules.Tests.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="BookingRules">
+        <MSBuild Projects="BookingRules.dproj"/>
+    </Target>
+    <Target Name="BookingRules:Clean">
+        <MSBuild Projects="BookingRules.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="BookingRules:Make">
+        <MSBuild Projects="BookingRules.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="BookingRules_Tests">
+        <MSBuild Projects="BookingRules.Tests.dproj"/>
+    </Target>
+    <Target Name="BookingRules_Tests:Clean">
+        <MSBuild Projects="BookingRules.Tests.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="BookingRules_Tests:Make">
+        <MSBuild Projects="BookingRules.Tests.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="BookingRules;BookingRules_Tests"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="BookingRules:Clean;BookingRules_Tests:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="BookingRules:Make;BookingRules_Tests:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
