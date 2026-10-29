@@ -9,17 +9,16 @@ uses
 type
   TSpyCustomerRepository = class(TInterfacedObject, ICustomerRepository)
   private
-    FActiveCalls: Integer;
-    FBlockedCalls: Integer;
+    FStatusCalls: Integer;
     FCustomerActive: Boolean;
   public
     constructor Create(ACustomerActive: Boolean = True);
 
-    function IsActive(ACustomerId: Integer): Boolean;
-    function IsBlocked(ACustomerId: Integer): Boolean;
+    function TryGetStatus(
+      ACustomerId: Integer;
+      out AStatus: TCustomerStatus): Boolean;
 
-    property ActiveCalls: Integer read FActiveCalls;
-    property BlockedCalls: Integer read FBlockedCalls;
+    property StatusCalls: Integer read FStatusCalls;
   end;
 
 implementation
@@ -31,18 +30,14 @@ begin
   FCustomerActive := ACustomerActive;
 end;
 
-function TSpyCustomerRepository.IsActive(
-  ACustomerId: Integer): Boolean;
+function TSpyCustomerRepository.TryGetStatus(
+  ACustomerId: Integer;
+  out AStatus: TCustomerStatus): Boolean;
 begin
-  Inc(FActiveCalls);
-  Result := FCustomerActive;
-end;
-
-function TSpyCustomerRepository.IsBlocked(
-  ACustomerId: Integer): Boolean;
-begin
-  Inc(FBlockedCalls);
-  Result := False;
+  Inc(FStatusCalls);
+  AStatus.Active := FCustomerActive;
+  AStatus.Blocked := False;
+  Result := True;
 end;
 
 end.

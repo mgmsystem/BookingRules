@@ -12,21 +12,17 @@ type
     FCustomerActive: Boolean;
     FCustomerBlocked: Boolean;
 
-    FLastActiveCustomerId: Integer;
-    FLastBlockedCustomerId: Integer;
+    FLastCustomerId: Integer;
   public
     constructor Create(
       ACustomerActive: Boolean;
       ACustomerBlocked: Boolean = False);
 
-    function IsActive(ACustomerId: Integer): Boolean;
-    function IsBlocked(ACustomerId: Integer): Boolean;
+    function TryGetStatus(
+      ACustomerId: Integer;
+      out AStatus: TCustomerStatus): Boolean;
 
-    property LastActiveCustomerId: Integer
-      read FLastActiveCustomerId;
-
-    property LastBlockedCustomerId: Integer
-      read FLastBlockedCustomerId;
+    property LastCustomerId: Integer read FLastCustomerId;
   end;
 
 implementation
@@ -40,18 +36,14 @@ begin
   FCustomerBlocked := ACustomerBlocked;
 end;
 
-function TFakeCustomerRepository.IsActive(
-  ACustomerId: Integer): Boolean;
+function TFakeCustomerRepository.TryGetStatus(
+  ACustomerId: Integer;
+  out AStatus: TCustomerStatus): Boolean;
 begin
-  FLastActiveCustomerId := ACustomerId;
-  Result := FCustomerActive;
-end;
-
-function TFakeCustomerRepository.IsBlocked(
-  ACustomerId: Integer): Boolean;
-begin
-  FLastBlockedCustomerId := ACustomerId;
-  Result := FCustomerBlocked;
+  FLastCustomerId := ACustomerId;
+  AStatus.Active := FCustomerActive;
+  AStatus.Blocked := FCustomerBlocked;
+  Result := True;
 end;
 
 end.

@@ -6,6 +6,15 @@ uses
   BookingRules.CustomerRepository;
 
 type
+  TReservationDecision = (
+    rdConfirmed,
+    rdInvalidParticipantCount,
+    rdRepositoryUnavailable,
+    rdCustomerNotFound,
+    rdCustomerInactive,
+    rdCustomerBlocked
+  );
+
   TReservation = class
   private
     const MaxParticipants = 5;
@@ -17,6 +26,7 @@ type
       ACustomerId: Integer;
       ACustomerRepository: ICustomerRepository);
 
+    function Evaluate(AParticipantCount: Integer): TReservationDecision;
     function CanConfirm(AParticipantCount: Integer): Boolean;
   end;
 
@@ -35,17 +45,33 @@ end;
 function TReservation.CanConfirm(
   AParticipantCount: Integer): Boolean;
 begin
-  Result := (AParticipantCount > 0) and
-            (AParticipantCount <= MaxParticipants) and
-            Assigned(FCustomerRepository);
+  Result := Evaluate(AParticipantCount) = rdConfirmed;
+end;
 
-  if Result then
-  begin
-    Result := FCustomerRepository.IsActive(FCustomerId);
+function TReservation.Evaluate(
+  AParticipantCount: Integer): TReservationDecision;
+var
+  CustomerStatus: TCustomerStatus;
+begin
+  if (AParticipantCount <= 0) or
+     (AParticipantCount > MaxParticipants) then
+    Exit(rdInvalidParticipantCount);
 
-    if Result then
-      Result := not FCustomerRepository.IsBlocked(FCustomerId);
-  end;
+  if not Assigned(FCustomerRepository) then
+    Exit(rdRepositoryUnavailable);
+
+  if not FCustomerRepository.TryGetStatus(
+    FCustomerId,
+    CustomerStatus) then
+    Exit(rdCustomerNotFound);
+
+  if not CustomerStatus.Active then
+    Exit(rdCustomerInactive);
+
+  if CustomerStatus.Blocked then
+    Exit(rdCustomerBlocked);
+
+  Result := rdConfirmed;
 end;
 
 end.

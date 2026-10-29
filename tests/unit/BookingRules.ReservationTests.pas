@@ -44,13 +44,11 @@ type
     [Test]
     procedure DevePropagarErroAoConsultarCliente;
     [Test]
-    procedure DevePropagarErroAoConsultarBloqueio;
-    [Test]
     procedure NaoDeveConsultarRepositorioQuandoQuantidadeInvalida;
     [Test]
     procedure DeveConsultarRepositorioAoConfirmarReservaValida;
     [Test]
-    procedure NaoDeveConsultarBloqueioQuandoClienteInativo;
+    procedure DeveInformarMotivoDaRecusaBasica;
 
     [Test]
     [TestCase('Zero participantes', '0,False')]
@@ -160,8 +158,7 @@ begin
   try
     Assert.IsTrue(Reservation.CanConfirm(1));
 
-    Assert.AreEqual(25, Repository.LastActiveCustomerId);
-    Assert.AreEqual(25, Repository.LastBlockedCustomerId);
+    Assert.AreEqual(25, Repository.LastCustomerId);
   finally
     Reservation.Free;
   end;
@@ -182,26 +179,7 @@ var
   Repository: ICustomerRepository;
   Reservation: TReservation;
 begin
-  Repository := TFailingCustomerRepository.Create(rfIsActive);
-  Reservation := TReservation.Create(1, Repository);
-  try
-    Assert.WillRaise(
-      procedure
-      begin
-        Reservation.CanConfirm(1);
-      end,
-      Exception);
-  finally
-    Reservation.Free;
-  end;
-end;
-
-procedure TReservationTests.DevePropagarErroAoConsultarBloqueio;
-var
-  Repository: ICustomerRepository;
-  Reservation: TReservation;
-begin
-  Repository := TFailingCustomerRepository.Create(rfIsBlocked);
+  Repository := TFailingCustomerRepository.Create;
   Reservation := TReservation.Create(1, Repository);
   try
     Assert.WillRaise(
@@ -221,8 +199,7 @@ begin
 
   Assert.IsFalse(FReservation.CanConfirm(0));
 
-  Assert.AreEqual(0, FSpy.ActiveCalls);
-  Assert.AreEqual(0, FSpy.BlockedCalls);
+  Assert.AreEqual(0, FSpy.StatusCalls);
 end;
 
 procedure TReservationTests.DeveConsultarRepositorioAoConfirmarReservaValida;
@@ -231,18 +208,19 @@ begin
 
   Assert.IsTrue(FReservation.CanConfirm(1));
 
-  Assert.AreEqual(1, FSpy.ActiveCalls);
-  Assert.AreEqual(1, FSpy.BlockedCalls);
+  Assert.AreEqual(1, FSpy.StatusCalls);
 end;
 
-procedure TReservationTests.NaoDeveConsultarBloqueioQuandoClienteInativo;
+procedure TReservationTests.DeveInformarMotivoDaRecusaBasica;
 begin
-  ConfigurarReservaComSpy(False);
+  Assert.AreEqual(
+    rdInvalidParticipantCount,
+    FReservation.Evaluate(0));
 
-  Assert.IsFalse(FReservation.CanConfirm(1));
-
-  Assert.AreEqual(1, FSpy.ActiveCalls);
-  Assert.AreEqual(0, FSpy.BlockedCalls);
+  ConfigurarReserva(True, False, True);
+  Assert.AreEqual(
+    rdRepositoryUnavailable,
+    FReservation.Evaluate(1));
 end;
 
 initialization

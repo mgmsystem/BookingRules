@@ -18,6 +18,15 @@ type
 
     [Test]
     procedure NaoDeveConfirmarReservaParaClienteInexistente;
+
+    [Test]
+    procedure DeveInformarMotivoParaClienteInativo;
+
+    [Test]
+    procedure DeveInformarMotivoParaClienteBloqueado;
+
+    [Test]
+    procedure DeveInformarQuandoClienteNaoExiste;
   end;
 
 implementation
@@ -77,6 +86,59 @@ begin
   Reservation := TReservation.Create(99, Repository);
   try
     Assert.IsFalse(Reservation.CanConfirm(1));
+  finally
+    Reservation.Free;
+  end;
+end;
+
+procedure TReservationIntegrationTests.DeveInformarMotivoParaClienteInativo;
+var
+  Repository: ICustomerRepository;
+  MemoryRepository: TInMemoryCustomerRepository;
+  Reservation: TReservation;
+begin
+  MemoryRepository := TInMemoryCustomerRepository.Create;
+  Repository := MemoryRepository;
+  MemoryRepository.AddCustomer(25, False, False);
+
+  Reservation := TReservation.Create(25, Repository);
+  try
+    Assert.AreEqual(rdCustomerInactive, Reservation.Evaluate(1));
+  finally
+    Reservation.Free;
+  end;
+end;
+
+procedure TReservationIntegrationTests.DeveInformarMotivoParaClienteBloqueado;
+var
+  Repository: ICustomerRepository;
+  MemoryRepository: TInMemoryCustomerRepository;
+  Reservation: TReservation;
+begin
+  MemoryRepository := TInMemoryCustomerRepository.Create;
+  Repository := MemoryRepository;
+  MemoryRepository.AddCustomer(25, True, True);
+
+  Reservation := TReservation.Create(25, Repository);
+  try
+    Assert.AreEqual(rdCustomerBlocked, Reservation.Evaluate(1));
+  finally
+    Reservation.Free;
+  end;
+end;
+
+procedure TReservationIntegrationTests.DeveInformarQuandoClienteNaoExiste;
+var
+  Repository: ICustomerRepository;
+  MemoryRepository: TInMemoryCustomerRepository;
+  Reservation: TReservation;
+begin
+  MemoryRepository := TInMemoryCustomerRepository.Create;
+  Repository := MemoryRepository;
+
+  Reservation := TReservation.Create(99, Repository);
+  try
+    Assert.AreEqual(rdCustomerNotFound, Reservation.Evaluate(1));
   finally
     Reservation.Free;
   end;

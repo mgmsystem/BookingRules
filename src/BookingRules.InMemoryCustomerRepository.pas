@@ -27,8 +27,9 @@ type
       AActive: Boolean;
       ABlocked: Boolean);
 
-    function IsActive(ACustomerId: Integer): Boolean;
-    function IsBlocked(ACustomerId: Integer): Boolean;
+    function TryGetStatus(
+      ACustomerId: Integer;
+      out AStatus: TCustomerStatus): Boolean;
   end;
 
 implementation
@@ -59,22 +60,21 @@ begin
   FCustomers.AddOrSetValue(AId, Customer);
 end;
 
-function TInMemoryCustomerRepository.IsActive(
-  ACustomerId: Integer): Boolean;
+function TInMemoryCustomerRepository.TryGetStatus(
+  ACustomerId: Integer;
+  out AStatus: TCustomerStatus): Boolean;
 var
   Customer: TCustomer;
 begin
-  Result := FCustomers.TryGetValue(ACustomerId, Customer)
-    and Customer.Active;
-end;
+  Result := FCustomers.TryGetValue(ACustomerId, Customer);
 
-function TInMemoryCustomerRepository.IsBlocked(
-  ACustomerId: Integer): Boolean;
-var
-  Customer: TCustomer;
-begin
-  Result := FCustomers.TryGetValue(ACustomerId, Customer)
-    and Customer.Blocked;
+  if Result then
+  begin
+    AStatus.Active := Customer.Active;
+    AStatus.Blocked := Customer.Blocked;
+  end
+  else
+    AStatus := Default(TCustomerStatus);
 end;
 
 end.

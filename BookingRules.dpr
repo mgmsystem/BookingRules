@@ -9,6 +9,26 @@ uses
   BookingRules.CustomerRepository in 'src\BookingRules.CustomerRepository.pas',
   BookingRules.InMemoryCustomerRepository in 'src\BookingRules.InMemoryCustomerRepository.pas';
 
+function DecisionToText(ADecision: TReservationDecision): string;
+begin
+  case ADecision of
+    rdConfirmed:
+      Result := 'CONFIRMADA';
+    rdInvalidParticipantCount:
+      Result := 'RECUSADA - quantidade de participantes invalida';
+    rdRepositoryUnavailable:
+      Result := 'RECUSADA - repositorio indisponivel';
+    rdCustomerNotFound:
+      Result := 'RECUSADA - cliente nao encontrado';
+    rdCustomerInactive:
+      Result := 'RECUSADA - cliente inativo';
+    rdCustomerBlocked:
+      Result := 'RECUSADA - cliente bloqueado';
+  else
+    Result := 'RECUSADA - motivo desconhecido';
+  end;
+end;
+
 procedure DemonstrateReservation(
   const ARepository: ICustomerRepository;
   ACustomerId: Integer;
@@ -27,10 +47,8 @@ begin
       ' | Resultado: '
     );
 
-    if Reservation.CanConfirm(AParticipantCount) then
-      Writeln('CONFIRMADA')
-    else
-      Writeln('RECUSADA');
+    Writeln(DecisionToText(
+      Reservation.Evaluate(AParticipantCount)));
   finally
     Reservation.Free;
   end;
